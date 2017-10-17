@@ -1,14 +1,14 @@
 const list = [
   {
-    title: 'Tell me the truth without words',
+    title: 'niaw junior',
     url: 'http//google.com',
     author: 'dd',
     num_comments: 100,
     points: 50,
-    objectID: 1
+    objectID: 0
   },
   {
-    title: 'Tell me the truth without words',
+    title: 'pasupol',
     url: 'http//facebook.com.com',
     author: 'ninja',
     num_comments: 100,
