@@ -7,7 +7,6 @@ const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 
-// const url = PATH_BASE + PATH_SEARCH + '?' + PARAM_SEARCH + DEFAULT_QUERY;
 const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
 console.log(url);
 function isSearched(searchTerm){
@@ -19,13 +18,27 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      list,
-      searchTerm: ''
+      result: null,
+      searchTerm: DEFAULT_QUERY 
     }
     this.removeItem = this.removeItem.bind(this);
     this.searchValue = this.searchValue.bind(this);
+    this.setTopStories = this.setTopStories.bind(this);
   }
  
+  setTopStories(result){
+    this.setState({ result: result });
+  }
+  fetchTopStories(searchTerm){
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`)
+      .then(response => response.json())
+      .then(result => this.setTopStories(result))
+      .catch(e => e);
+
+  }
+  componentDidMount() {
+    this.fetchTopStories(this.state.searchTerm);
+  }
   removeItem(id){
     const updatedList = this.state.list.filter(item => item.objectID !== id);
     this.setState({ list: updatedList });
@@ -36,7 +49,9 @@ class App extends Component {
   }
   render() {
 
-    const { list, searchTerm } = this.state;
+    const { result, searchTerm } = this.state;
+
+    if(!result) { return null;}
 
     console.log(this);
 
@@ -55,7 +70,7 @@ class App extends Component {
       </Row>
     </Grid> 
     <Table
-      list= { list } 
+      list= { result.hits } 
       searchTerm= { searchTerm }
       removeItem={ this.removeItem }
     />
@@ -90,7 +105,6 @@ return(
       </form>
     )
 }
-
 
 const Button = ({ onClick, children, className=''}) =>
   <button
