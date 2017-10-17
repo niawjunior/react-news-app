@@ -4,14 +4,14 @@ import list from './list';
 
 function isSearched(searchTerm){
   return function(item){
-    return !searchTerm || item.title.includes(searchTerm);
+    return !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase());
   }
 }
 class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      list:list,
+      list,
       searchTerm: ''
     }
     this.removeItem = this.removeItem.bind(this);
@@ -28,26 +28,63 @@ class App extends Component {
     this.setState({ searchTerm: event.target.value });
   }
   render() {
+
+    const { list, searchTerm } = this.state;
+
     console.log(this);
+
     return (
-      <div className="App">
-       <form>
-         <input type="text" onChange={ this.searchValue } />
-       </form>
-        {
-          this.state.list.filter( isSearched(this.state.searchTerm) ).map(item =>
-             (
-            <div key={ item.objectID }>
-            <h1> <a href={ item.url }> { item.title }</a> by {item.author}</h1>
-                  <h4> { item.num_comments } Comments | { item.points } Points </h4>
-                  <button type="button" onClick={ () => this.removeItem(item.objectID)}>Remove</button>
-            </div>
-            )
-          )
-        }
-      </div>
+  <div className="App">
+    <Search
+      onChange={ this.searchValue } 
+      value= {searchTerm} 
+    >Search here </Search> 
+    <Table
+      list= { list } 
+      searchTerm= { searchTerm }
+      removeItem={ this.removeItem }
+    />
+  </div>
     );
   }
 }
 
+const Search = ({ onChange, value, children }) => {
+return(
+      <form>
+           { children }
+         <input
+          type="text"
+          onChange={ onChange} 
+          value= {value} 
+          />
+       </form>
+    )
+}
+
+
+const Button = ({ onClick, children }) =>
+  <button
+    onClick={ onClick } >
+    { children }
+  </button>
+
+  const Table = ({ list, searchTerm, removeItem }) => {
+    return(
+      <div>
+        {
+          list.filter( isSearched(searchTerm) ).map(item =>
+            <div key={ item.objectID }>
+              <h1> <a href={ item.url }> { item.title }</a> by {item.author}</h1>
+                <h4> { item.num_comments } Comments | { item.points } Points </h4>
+               <Button
+                 type="button" 
+                 onClick={ () => removeItem(item.objectID )} >Remove Me
+               </Button> 
+            </div>
+            )
+        }
+      </div>
+    )
+  }
 export default App;
