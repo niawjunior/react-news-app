@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import './App.css';
 import list from './list';
-
+import { Grid, Row, FormGroup } from 'react-bootstrap';
 function isSearched(searchTerm){
   return function(item){
     return !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -24,7 +23,6 @@ class App extends Component {
   }
 
   searchValue(event){
-    // console.log(event);
     this.setState({ searchTerm: event.target.value });
   }
   render() {
@@ -34,11 +32,19 @@ class App extends Component {
     console.log(this);
 
     return (
-  <div className="App">
-    <Search
-      onChange={ this.searchValue } 
-      value= {searchTerm} 
-    >Search here </Search> 
+  <div>
+    <Grid grid>
+      <Row>
+       <div className="jumbotron text-center">
+        <Search
+          onChange={ this.searchValue } 
+          value= {searchTerm} 
+        >
+        NEWS APP
+        </Search>
+       </div>
+      </Row>
+    </Grid> 
     <Table
       list= { list } 
       searchTerm= { searchTerm }
@@ -52,35 +58,52 @@ class App extends Component {
 const Search = ({ onChange, value, children }) => {
 return(
       <form>
-           { children }
-         <input
+        <FormGroup>
+          <h1 style={{ fontWeight: 'bold',color:'white'}}> { children }</h1>
+          <hr style={{ border: '2px solid white', width: '300px'}}/>
+          <div className="input-group width100">
+          <input
+          className="form-control searchForm"
           type="text"
           onChange={ onChange} 
           value= {value} 
           />
-       </form>
+          <span className="input-group-btn">
+            <button
+             className="btn btn-info searchBtn"
+             type="submit"
+            >
+            Search 
+            </button>
+          </span>
+          </div>
+        </FormGroup>
+      </form>
     )
 }
 
 
-const Button = ({ onClick, children }) =>
+const Button = ({ onClick, children, className=''}) =>
   <button
+    className={ className }
     onClick={ onClick } >
     { children }
   </button>
 
   const Table = ({ list, searchTerm, removeItem }) => {
     return(
-      <div>
+      <div className="col-sm-10 col-sm-offset-1">
         {
           list.filter( isSearched(searchTerm) ).map(item =>
             <div key={ item.objectID }>
               <h1> <a href={ item.url }> { item.title }</a> by {item.author}</h1>
-                <h4> { item.num_comments } Comments | { item.points } Points </h4>
+                <h4> { item.num_comments } | Comments | { item.points } Points 
                <Button
+                 className="btn btn-danger btn-xs"
                  type="button" 
                  onClick={ () => removeItem(item.objectID )} >Remove Me
                </Button> 
+               </h4><hr/>
             </div>
             )
         }
