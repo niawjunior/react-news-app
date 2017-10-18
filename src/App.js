@@ -28,7 +28,10 @@ class App extends Component {
   }
  
   setTopStories(result){
-    this.setState({ result: result });
+    const { hits, page }  = result;
+    const oldHits = page !==0 ? this.state.result.hits : [];
+    const updateHits = [...oldHits, ...hits];
+    this.setState({ result: { hits: updateHits, page}});
   }
   fetchTopStories(searchTerm, page){
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}
@@ -85,9 +88,9 @@ class App extends Component {
       }
       <div className="text-center alert">
       <Button
-      className="btn btn-success"
+      className="btn btn-primary btn-block"
       onClick={ () => this.fetchTopStories(searchTerm, page +1)} >
-      Load More
+      <h4 style={{fontWeight:'bold'}}>Load More</h4>
       </Button>
       </div>
       </div>
@@ -113,7 +116,7 @@ return(
              className="btn btn-info searchBtn"
              type="submit"
             >
-            Search 
+            <h4 style={{ fontWeight: 'bold'}}>Search</h4>
             </button>
           </span>
           </div>
