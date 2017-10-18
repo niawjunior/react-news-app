@@ -6,14 +6,6 @@ import {
 const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}
             &${PARAM_PAGE}&${PARAM_HPP}${DEFAULT_HPP}`;
 console.log(url);
-
-function isSearched(searchTerm){
-  return function(item){
-    return !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase());
-  }
-}
-
-
 class App extends Component {
   constructor(props){
     super(props);
