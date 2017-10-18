@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import list from './list';
 import { Grid, Row, FormGroup } from 'react-bootstrap';
-
 const DEFAULT_QUERY = 'react';
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
@@ -24,13 +23,14 @@ class App extends Component {
     this.removeItem = this.removeItem.bind(this);
     this.searchValue = this.searchValue.bind(this);
     this.setTopStories = this.setTopStories.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
  
   setTopStories(result){
     this.setState({ result: result });
   }
   fetchTopStories(searchTerm){
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`)
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
       .then(response => response.json())
       .then(result => this.setTopStories(result))
       .catch(e => e);
@@ -39,9 +39,15 @@ class App extends Component {
   componentDidMount() {
     this.fetchTopStories(this.state.searchTerm);
   }
+
+  onSubmit(event){
+    this.fetchTopStories(this.state.searchTerm);
+    event.preventDefault();
+  }
   removeItem(id){
-    const updatedList = this.state.list.filter(item => item.objectID !== id);
-    this.setState({ list: updatedList });
+    const {result } = this.state;
+    const updatedList = this.state.result.hits.filter(item => item.objectID !== id);
+    this.setState({ result: {...result, hits: updatedList}})
   }
 
   searchValue(event){
@@ -50,8 +56,6 @@ class App extends Component {
   render() {
 
     const { result, searchTerm } = this.state;
-
-    if(!result) { return null;}
 
     console.log(this);
 
@@ -63,25 +67,28 @@ class App extends Component {
         <Search
           onChange={ this.searchValue } 
           value= {searchTerm} 
+          onSubmit={ this.onSubmit }
         >
         NEWS APP
         </Search>
        </div>
       </Row>
     </Grid> 
+    { result &&
     <Table
       list= { result.hits } 
       searchTerm= { searchTerm }
       removeItem={ this.removeItem }
-    />
+    /> 
+    }
   </div>
     );
   }
 }
 
-const Search = ({ onChange, value, children }) => {
+const Search = ({ onChange, value, children, onSubmit }) => {
 return(
-      <form>
+      <form onSubmit={ onSubmit}>
         <FormGroup>
           <h1 style={{ fontWeight: 'bold',color:'white'}}> { children }</h1>
           <hr style={{ border: '2px solid white', width: '300px'}}/>
