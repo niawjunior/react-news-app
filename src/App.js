@@ -62,9 +62,9 @@ class App extends Component {
     console.log(this);
 
     return (
-  <div className="container">
-    <Grid grid>
-      <Row>
+  <div>
+  <Grid grid>
+       <Row>
        <div className="jumbotron text-center">
         <Search
           onChange={ this.searchValue } 
@@ -73,23 +73,24 @@ class App extends Component {
         >
         NEWS APP
         </Search>
-       </div>
-      </Row>
-    </Grid> 
-    { result &&
-    <Table
-      list= { result.hits } 
-      searchTerm= { searchTerm }
-      removeItem={ this.removeItem }
-    /> 
-    }
-    <div>
+        </div>
+       </Row>
+        </Grid> 
+       { result &&
+        <Table
+        list= { result.hits } 
+        searchTerm= { searchTerm }
+        removeItem={ this.removeItem }
+        /> 
+      }
+      <div className="text-center alert">
       <Button
-        onClick={ () => this.fetchTopStories(searchTerm, page +1)} >
-        Load More
+      className="btn btn-success"
+      onClick={ () => this.fetchTopStories(searchTerm, page +1)} >
+      Load More
       </Button>
-    </div>
-    </div>
+      </div>
+      </div>
     );
   }
 }
@@ -130,7 +131,7 @@ const Button = ({ onClick, children, className=''}) =>
 
   const Table = ({ list, searchTerm, removeItem }) => {
     return(
-      <div className="col-lg-12 ">
+      <div className="col-sm-12 col-sm-offset-0 ">
         {
           // list.filter( isSearched(searchTerm) ).map(item =>
           list.map(item =>
