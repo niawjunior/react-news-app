@@ -1,16 +1,8 @@
 import React, { Component } from 'react';
 import { Grid, Row, FormGroup } from 'react-bootstrap';
-
-const DEFAULT_QUERY = 'react';
-const DEFAULT_PAGE = 0;
-const DEFAULT_HPP = 10;
-
-const PATH_BASE = 'https://hn.algolia.com/api/v1';
-const PATH_SEARCH = '/search';
-const PARAM_SEARCH = 'query=';
-const PARAM_PAGE = 'page=';
-const PARAM_HPP = 'hitsPerPage=';
-
+import {
+  DEFAULT_PAGE,DEFAULT_QUERY,DEFAULT_HPP,PATH_BASE,PATH_SEARCH,PARAM_SEARCH,PARAM_PAGE,PARAM_HPP
+} from './constants/index';
 const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}
             &${PARAM_PAGE}&${PARAM_HPP}${DEFAULT_HPP}`;
 console.log(url);
@@ -105,21 +97,24 @@ class App extends Component {
         </Search>
       </div>
     </Row>
-        </Grid> 
-       { results &&
-        <Table
-        list= { list } 
-        searchTerm= { searchTerm }
-        removeItem={ this.removeItem }
-        /> 
-      }
-      <div className="text-center alert">
-        <Button
-          className="btn btn-primary btn-block"
-          onClick={ () => this.fetchTopStories(searchTerm, page +1)} >
-          <h4 style={{fontWeight:'bold'}}>Load More</h4>
-        </Button>
-      </div>
+    </Grid> 
+      <Grid>
+        <Row>
+          <Table
+          list= { list } 
+          searchTerm= { searchTerm }
+          removeItem={ this.removeItem }
+          /> 
+        }
+        <div className="text-center alert">
+          <Button
+            className="btn btn-primary btn-block"
+            onClick={ () => this.fetchTopStories(searchTerm, page +1)} >
+            <h4 style={{fontWeight:'bold'}}>Load More</h4>
+          </Button>
+        </div>
+        </Row>
+      </Grid>
 </div>
     );
   }
