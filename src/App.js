@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import list from './list';
 import { Grid, Row, FormGroup } from 'react-bootstrap';
 const DEFAULT_QUERY = 'react';
+const DEFAULT_PAGE = 0;
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
-
-const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
+const PARAM_PAGE = 'page=';
+const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}&${PARAM_PAGE}`;
 console.log(url);
 function isSearched(searchTerm){
   return function(item){
@@ -29,19 +30,20 @@ class App extends Component {
   setTopStories(result){
     this.setState({ result: result });
   }
-  fetchTopStories(searchTerm){
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+  fetchTopStories(searchTerm, page){
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}
+      &${PARAM_PAGE}${page}`)
       .then(response => response.json())
       .then(result => this.setTopStories(result))
       .catch(e => e);
 
   }
   componentDidMount() {
-    this.fetchTopStories(this.state.searchTerm);
+    this.fetchTopStories(this.state.searchTerm, DEFAULT_PAGE);
   }
 
   onSubmit(event){
-    this.fetchTopStories(this.state.searchTerm);
+    this.fetchTopStories(this.state.searchTerm, DEFAULT_PAGE);
     event.preventDefault();
   }
   removeItem(id){
@@ -56,11 +58,11 @@ class App extends Component {
   render() {
 
     const { result, searchTerm } = this.state;
-
+    const page = (result && result.page) || 0;
     console.log(this);
 
     return (
-  <div>
+  <div className="container">
     <Grid grid>
       <Row>
        <div className="jumbotron text-center">
@@ -81,7 +83,13 @@ class App extends Component {
       removeItem={ this.removeItem }
     /> 
     }
-  </div>
+    <div>
+      <Button
+        onClick={ () => this.fetchTopStories(searchTerm, page +1)} >
+        Load More
+      </Button>
+    </div>
+    </div>
     );
   }
 }
@@ -122,9 +130,10 @@ const Button = ({ onClick, children, className=''}) =>
 
   const Table = ({ list, searchTerm, removeItem }) => {
     return(
-      <div className="col-sm-10 col-sm-offset-1">
+      <div className="col-lg-12 ">
         {
-          list.filter( isSearched(searchTerm) ).map(item =>
+          // list.filter( isSearched(searchTerm) ).map(item =>
+          list.map(item =>
             <div key={ item.objectID }>
               <h1> <a href={ item.url }> { item.title }</a> by {item.author}</h1>
                 <h4> { item.num_comments } | Comments | { item.points } Points 
