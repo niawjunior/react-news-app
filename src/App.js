@@ -170,7 +170,7 @@ const Button = ({ onClick, children, className=''}) =>
                <Button
                  className="btn btn-danger btn-xs"
                  type="button" 
-                 onClick={ () => removeItem(item.objectID )} >Remove Me
+                 onClick={ () => removeItem(item.objectID )} >Remove
                </Button> 
                </h4><hr/>
             </div>
