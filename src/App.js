@@ -1,55 +1,84 @@
 import React, { Component } from 'react';
 import { Grid, Row, FormGroup } from 'react-bootstrap';
+
 const DEFAULT_QUERY = 'react';
 const DEFAULT_PAGE = 0;
-const DEFAULT_HPP = 100;
+const DEFAULT_HPP = 10;
+
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
+
 const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}
-             &${PARAM_PAGE}&${PARAM_HPP}&${DEFAULT_HPP}`;
+            &${PARAM_PAGE}&${PARAM_HPP}${DEFAULT_HPP}`;
 console.log(url);
+
+function isSearched(searchTerm){
+  return function(item){
+    return !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase());
+  }
+}
+
+
 class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      result: null,
+      results: null,
+      searchKey: '',
       searchTerm: DEFAULT_QUERY 
     }
+
     this.removeItem = this.removeItem.bind(this);
     this.searchValue = this.searchValue.bind(this);
+    this.fetchTopStories = this.fetchTopStories.bind(this);
     this.setTopStories = this.setTopStories.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
   }
  
-  setTopStories(result){
-    const { hits, page }  = result;
-    const oldHits = page !==0 ? this.state.result.hits : [];
-    const updateHits = [...oldHits, ...hits];
-    this.setState({ result: { hits: updateHits, page}});
+  checkTopStoriesSearchTerm(searchTerm){
+    return !this.state.results[searchTerm];
   }
+
+  setTopStories(result){
+    const { hits, page } = result;
+    const { searchKey, results } = this.state;
+    const oldHits = results && results[searchKey] ? results[searchKey].hits : [];
+    const updatedHits = [...oldHits, ...hits];
+    this.setState({ results: { ...results, [searchKey]: {hits: updatedHits, page} } });
+  }
+
   fetchTopStories(searchTerm, page){
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}
       &${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(response => response.json())
       .then(result => this.setTopStories(result))
       .catch(e => e);
-
   }
+
   componentDidMount() {
-    this.fetchTopStories(this.state.searchTerm, DEFAULT_PAGE);
+    const { searchTerm } = this.state;
+    this.setState({ searchKey: searchTerm });
+    this.fetchTopStories(searchTerm, DEFAULT_PAGE);
   }
 
   onSubmit(event){
-    this.fetchTopStories(this.state.searchTerm, DEFAULT_PAGE);
+    const { searchTerm } = this.state;
+    this.setState({ searchKey: searchTerm });
+
+    if (this.checkTopStoriesSearchTerm(searchTerm)) {
+      this.fetchTopStories(this.state.searchTerm, DEFAULT_PAGE);
+    }
+
     event.preventDefault();
   }
   removeItem(id){
-    const {result } = this.state;
-    const updatedList = this.state.result.hits.filter(item => item.objectID !== id);
-    this.setState({ result: {...result, hits: updatedList}})
+    const {results, searchKey } = this.state;
+    const { hits, page} = results[searchKey];
+    const updatedList = hits.filter(item => item.objectID !== id);
+    this.setState({ results: {...results,[searchKey]: { hits: updatedList, page}}})
   }
 
   searchValue(event){
@@ -57,40 +86,41 @@ class App extends Component {
   }
   render() {
 
-    const { result, searchTerm } = this.state;
-    const page = (result && result.page) || 0;
+    const { results, searchTerm, searchKey } = this.state;
+    const page = (results && results[searchKey] && results[searchKey].page) || 0;
+    const list = (results && results[searchKey] && results[searchKey].hits) || [];
     console.log(this);
 
     return (
   <div>
   <Grid grid>
-       <Row>
+    <Row>
        <div className="jumbotron text-center">
         <Search
           onChange={ this.searchValue } 
           value= {searchTerm} 
           onSubmit={ this.onSubmit }
-        >
+          >
         NEWS APP
         </Search>
-        </div>
-       </Row>
+      </div>
+    </Row>
         </Grid> 
-       { result &&
+       { results &&
         <Table
-        list= { result.hits } 
+        list= { list } 
         searchTerm= { searchTerm }
         removeItem={ this.removeItem }
         /> 
       }
       <div className="text-center alert">
-      <Button
-      className="btn btn-primary btn-block"
-      onClick={ () => this.fetchTopStories(searchTerm, page +1)} >
-      <h4 style={{fontWeight:'bold'}}>Load More</h4>
-      </Button>
+        <Button
+          className="btn btn-primary btn-block"
+          onClick={ () => this.fetchTopStories(searchTerm, page +1)} >
+          <h4 style={{fontWeight:'bold'}}>Load More</h4>
+        </Button>
       </div>
-      </div>
+</div>
     );
   }
 }
